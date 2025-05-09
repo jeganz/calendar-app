@@ -35,6 +35,3 @@ npm install
 npm run dev
 ```
 
-## 📧 Contact
-
-Created by [Your Name] - [your-email@example.com]
