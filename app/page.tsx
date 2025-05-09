@@ -260,12 +260,7 @@ export default function CalendarPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <CalendarIcon className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
+            
             <Button
               className="bg-black text-white hover:bg-black/90 rounded px-4 py-2 text-sm"
               onClick={() => setIsAddEventOpen(true)}
