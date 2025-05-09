@@ -1,0 +1,42 @@
+[
+    {
+      "id": "1",
+      "title": "team meeting",
+      "date": "2025-05-10",
+      "startTime": "10:00 am",
+      "endTime": "11:00 am",
+      "color": "red"
+    },
+    {
+      "id": "2",
+      "title": "doctor appointment",
+      "date": "2025-05-20",
+      "startTime": "03:30 pm",
+      "endTime": "04:00 pm",
+      "color": "blue"
+    },
+    {
+      "id": "3",
+      "title": "project deadline",
+      "date": "2025-05-20",
+      "startTime": "12:00 am",
+      "endTime": "11:59 pm",
+      "color": "green"
+    },
+    {
+      "id": "4",
+      "title": "birthday party",
+      "date": "2025-05-20",
+      "startTime": "06:00 pm",
+      "endTime": "10:00 pm",
+      "color": "purple"
+    },
+    {
+      "id": "5",
+      "title": "webinar on ai",
+      "date": "2025-05-20",
+      "startTime": "01:00 pm",
+      "endTime": "02:30 pm",
+      "color": "orange"
+    }
+]
