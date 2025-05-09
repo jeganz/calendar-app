@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarIcon, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import events from "./events.json"
+
 // Event type definition
 type Event = {
   id: string
@@ -33,8 +34,9 @@ type Day = {
   isCurrentMonth?: boolean
 }
 
-const monthNames= ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-const weekNames=["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const weekNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+const shortWeekNames = ["S", "M", "T", "W", "T", "F", "S"]
 
 // Generate hours for select
 const hours = Array.from({ length: 24 }, (_, i) => {
@@ -54,15 +56,12 @@ const minutes = Array.from({ length: 4 }, (_, i) => {
   }
 })
 
-
-
-
-
 export default function CalendarPage() {
   // State for the selected day and dialog
   const [selectedDay, setSelectedDay] = useState<Day | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isAddEventOpen, setIsAddEventOpen] = useState(false)
+  const [isMobileView, setIsMobileView] = useState(false)
 
   // State for new event form
   const [newEvent, setNewEvent] = useState({
@@ -75,51 +74,68 @@ export default function CalendarPage() {
     color: "blue",
   })
 
-  const generateCalendarData = (currentMonth: number, currentYear: number): Day[] => {
-    
-    const today = new Date();
-    const currentDate = today.getMonth()===currentMonth? today.getDate():-1;
-  
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0); // 0 = last day of previous month
-  
-    const calendarData: Day[] = [];
-  
-    // Clone firstDayOfMonth and move to the previous Sunday
-    const startDate = new Date(firstDayOfMonth);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
-  
-    // Clone lastDayOfMonth and move to the next Saturday
-    const endDate = new Date(lastDayOfMonth);
-    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
-  
-    const loopDate = new Date(startDate);
-    
-    
-    while (loopDate <= endDate) {
+  // Check for mobile view
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobileView(window.innerWidth < 768)
+    }
 
+    // Initial check
+    checkIfMobile()
+
+    // Add event listener
+    window.addEventListener("resize", checkIfMobile)
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIfMobile)
+  }, [])
+
+  const generateCalendarData = (currentMonth: number, currentYear: number): Day[] => {
+    const today = new Date()
+    const currentDate = today.getMonth() === currentMonth ? today.getDate() : -1
+
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1)
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0) // 0 = last day of previous month
+
+    const calendarData: Day[] = []
+
+    // Clone firstDayOfMonth and move to the previous Sunday
+    const startDate = new Date(firstDayOfMonth)
+    startDate.setDate(startDate.getDate() - startDate.getDay())
+
+    // Clone lastDayOfMonth and move to the next Saturday
+    const endDate = new Date(lastDayOfMonth)
+    endDate.setDate(endDate.getDate() + (6 - endDate.getDay()))
+
+    const loopDate = new Date(startDate)
+
+    while (loopDate <= endDate) {
       const formattedDate = `${loopDate.getFullYear()}-${(loopDate.getMonth() + 1)
         .toString()
-        .padStart(2, "0")}-${loopDate.getDate().toString().padStart(2, "0")}`;
-      const event: Event[] = events.filter((event) => new Date(event.date).toISOString().split('T')[0] === formattedDate);
-      
+        .padStart(2, "0")}-${loopDate.getDate().toString().padStart(2, "0")}`
+
+      const dayEvents: Event[] = events.filter(
+        (event) => new Date(event.date).toISOString().split("T")[0] === formattedDate,
+      )
+
       const day: Day = {
         date: loopDate.getDate(),
         fullDate: new Date(loopDate),
-        events: event,
+        events: dayEvents,
         isCurrentMonth: loopDate.getMonth() === currentMonth,
         isCurrentDay:
           loopDate.getDate() === currentDate &&
           loopDate.getMonth() === currentMonth &&
           loopDate.getFullYear() === currentYear,
-      };
-  
-      calendarData.push(day);
-      loopDate.setDate(loopDate.getDate() + 1);
+      }
+
+      calendarData.push(day)
+      loopDate.setDate(loopDate.getDate() + 1)
     }
-    
-    return calendarData;
-  };
+
+    return calendarData
+  }
+
   // Generate calendar data
   const [today, setToday] = useState(new Date())
   const [currentDate, setCurrentDate] = useState(today.getDate())
@@ -130,30 +146,28 @@ export default function CalendarPage() {
   const [calendarData, setCalendarData] = useState<Day[]>([])
 
   useEffect(() => {
-    
-    const data=generateCalendarData(currentMonth, currentYear);
-    setCalendarData(data);
-    
-  }, [currentMonth, currentYear]);
-  
+    const data = generateCalendarData(currentMonth, currentYear)
+    setCalendarData(data)
+  }, [currentMonth, currentYear])
+
   const goToNextMonth = () => {
     if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
+      setCurrentMonth(0)
+      setCurrentYear(currentYear + 1)
     } else {
-      setCurrentMonth(currentMonth + 1);
+      setCurrentMonth(currentMonth + 1)
     }
-  };
-  
+  }
+
   const goToPrevMonth = () => {
     if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
+      setCurrentMonth(11)
+      setCurrentYear(currentYear - 1)
     } else {
-      setCurrentMonth(currentMonth - 1);
+      setCurrentMonth(currentMonth - 1)
     }
-  };
-  
+  }
+
   // Function to handle day click
   const handleDayClick = (day: Day) => {
     setSelectedDay(day)
@@ -168,16 +182,15 @@ export default function CalendarPage() {
   // Function to add a new event
   const handleAddEvent = () => {
     const { title, date, startHour, startMinute, endHour, endMinute, color } = newEvent
-    console.log(newEvent);
-    
+
     // Format time
     const startTime = `${Number.parseInt(startHour) % 12 || 12}:${startMinute.padStart(2, "0")} ${Number.parseInt(startHour) < 12 ? "AM" : "PM"}`
     const endTime = `${Number.parseInt(endHour) % 12 || 12}:${endMinute.padStart(2, "0")} ${Number.parseInt(endHour) < 12 ? "AM" : "PM"}`
 
     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
       .toString()
-      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-    
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+
     // Create new event
     const event: Event = {
       id: Date.now().toString(),
@@ -187,8 +200,7 @@ export default function CalendarPage() {
       endTime,
       color,
     }
-    // Fetch existing events from local storage or initialize an empty array
-        
+
     // Add event to calendar
     const updatedCalendar = calendarData.map((day) => {
       if (day.fullDate.toDateString() === date.toDateString()) {
@@ -244,12 +256,14 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">
+    <div className="min-h-screen bg-gray-100 p-2 md:p-4">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-3 md:p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-bold">{monthNames[currentMonth]} {currentYear}</h1>
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <div className="flex items-center gap-2 md:gap-4">
+            <h1 className="text-2xl md:text-4xl font-bold">
+              {monthNames[currentMonth]} {currentYear}
+            </h1>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPrevMonth}>
                 <ChevronLeft className="h-4 w-4" />
@@ -260,9 +274,8 @@ export default function CalendarPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            
             <Button
-              className="bg-black text-white hover:bg-black/90 rounded px-4 py-2 text-sm"
+              className="bg-black text-white hover:bg-black/90 rounded px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm"
               onClick={() => setIsAddEventOpen(true)}
             >
               Add event
@@ -270,66 +283,76 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-600 mb-8">
+        {/* Description - Hide on mobile */}
+        <p className="hidden md:block text-gray-600 mb-8">
           Here all your planned events. You will find information for each event as well you can planned new one.
         </p>
 
         {/* Calendar */}
-        <div className="mt-4">
+        <div className="mt-2 md:mt-4">
           {/* Days of week */}
-          <div className="grid grid-cols-7 gap-4 mb-2">
-            {weekNames.map((day, index) => (
-              <div
-              key={index}
-              className={`text-center text-sm font-medium ${
-                index === today.getDay() ? "text-orange-500" : "text-gray-500"
-              }`}
-              >
-              {day}
-              </div>
-            ))}
+          <div className="grid grid-cols-7 gap-1 md:gap-4 mb-2">
+            {isMobileView
+              ? shortWeekNames.map((day, index) => (
+                  <div
+                    key={index}
+                    className={`text-center text-xs md:text-sm font-medium ${
+                      index === today.getDay() ? "text-orange-500" : "text-gray-500"
+                    }`}
+                  >
+                    {day}
+                  </div>
+                ))
+              : weekNames.map((day, index) => (
+                  <div
+                    key={index}
+                    className={`text-center text-xs md:text-sm font-medium ${
+                      index === today.getDay() ? "text-orange-500" : "text-gray-500"
+                    }`}
+                  >
+                    {day}
+                  </div>
+                ))}
           </div>
 
           {/* Week 1 */}
-          <div className="grid grid-cols-7 gap-4 mb-4">
+          <div className="grid grid-cols-7 gap-1 md:gap-4 mb-2 md:mb-4">
             {/* Day separators */}
             {weekNames.map((day, index) => (
               <div
-              key={index}
-              className={`border-t ${
-                index === today.getDay() ? "border-orange-300" : "border-gray-200"
-              }`}
-              >
-              </div>
+                key={index}
+                className={`border-t ${index === today.getDay() ? "border-orange-300" : "border-gray-200"}`}
+              ></div>
             ))}
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-4">
+          <div className="grid grid-cols-7 gap-1 md:gap-4">
             {calendarData.map((day, index) => (
               <div
                 key={index}
-                className={`min-h-[180px] p-3 border border-gray-100 rounded-md cursor-pointer transition-colors hover:border-gray-300 ${
+                className={`min-h-[80px] md:min-h-[180px] p-1.5 md:p-3 border border-gray-100 rounded-md cursor-pointer transition-colors hover:border-gray-300 ${
                   day.isCurrentDay ? "bg-orange-50" : ""
                 }`}
                 onClick={() => handleDayClick(day)}
               >
                 <div
-                  className={`text-2xl font-medium mb-4 ${day.isCurrentDay ? "text-orange-500" : day.isCurrentMonth?"text-gray-700" :"text-gray-300"} ${
-                    !day.isCurrentMonth ? "text-gray-400" : ""
+                  className={`text-lg md:text-2xl font-medium mb-1 md:mb-4 ${
+                    day.isCurrentDay ? "text-orange-500" : day.isCurrentMonth ? "text-gray-700" : "text-gray-300"
                   }`}
                 >
                   {day.date.toString().padStart(2, "0")}
                 </div>
 
-                <div className="space-y-2">
-                  {day.events.slice(0, 2).map((event, eventIndex) => (
+                <div className="space-y-1 md:space-y-2">
+                  {day.events.slice(0, isMobileView ? 1 : 2).map((event, eventIndex) => (
                     <div key={eventIndex} className="flex items-start">
-                      <div className={`w-1.5 h-1.5 rounded-full mt-1.5 mr-2 ${getBulletColorClass(event.color)}`}></div>
-                      <div>
-                        <div className="font-medium text-sm">{event.title}</div>
-                        <div className="text-xs text-gray-500">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full mt-1 md:mt-1.5 mr-1 md:mr-2 ${getBulletColorClass(event.color)}`}
+                      ></div>
+                      <div className="overflow-hidden">
+                        <div className="font-medium text-xs md:text-sm truncate">{event.title}</div>
+                        <div className="text-[10px] md:text-xs text-gray-500 truncate">
                           {event.allDay
                             ? "All day"
                             : event.endTime
@@ -340,8 +363,10 @@ export default function CalendarPage() {
                     </div>
                   ))}
 
-                  {day.events.length > 3 && (
-                    <div className="text-xs text-orange-500 mt-2 pl-3.5">And {day.events.length - 2} more</div>
+                  {day.events.length > (isMobileView ? 1 : 2) && (
+                    <div className="text-[10px] md:text-xs text-orange-500 mt-1 md:mt-2 pl-2 md:pl-3.5">
+                      +{day.events.length - (isMobileView ? 1 : 2)} more
+                    </div>
                   )}
                 </div>
               </div>
@@ -352,13 +377,19 @@ export default function CalendarPage() {
 
       {/* Event Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[90vw] max-w-md">
           <DialogHeader>
             <DialogTitle>
               {selectedDay?.isCurrentDay ? (
-                <span className="text-orange-500">Today - {monthNames[currentMonth]} {selectedDay?.date}, {currentYear}</span>
+                <span className="text-orange-500">
+                  Today - {monthNames[selectedDay.fullDate.getMonth()]} {selectedDay?.date},{" "}
+                  {selectedDay.fullDate.getFullYear()}
+                </span>
               ) : (
-                <span>{monthNames[currentMonth]} {selectedDay?.date}, {currentYear}</span>
+                <span>
+                  {monthNames[selectedDay?.fullDate.getMonth() || 0]} {selectedDay?.date},{" "}
+                  {selectedDay?.fullDate.getFullYear()}
+                </span>
               )}
             </DialogTitle>
           </DialogHeader>
@@ -387,7 +418,7 @@ export default function CalendarPage() {
 
       {/* Add Event Dialog */}
       <Dialog open={isAddEventOpen} onOpenChange={setIsAddEventOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[90vw] max-w-md">
           <DialogHeader>
             <DialogTitle>Add New Event</DialogTitle>
           </DialogHeader>
@@ -431,7 +462,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Time Selection */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label>Start Time</Label>
                 <div className="flex gap-2">

@@ -1,42 +1,98 @@
 [
-    {
-      "id": "1",
-      "title": "team meeting",
-      "date": "2025-05-10",
-      "startTime": "10:00 am",
-      "endTime": "11:00 am",
-      "color": "red"
-    },
-    {
-      "id": "2",
-      "title": "doctor appointment",
-      "date": "2025-05-20",
-      "startTime": "03:30 pm",
-      "endTime": "04:00 pm",
-      "color": "blue"
-    },
-    {
-      "id": "3",
-      "title": "project deadline",
-      "date": "2025-05-20",
-      "startTime": "12:00 am",
-      "endTime": "11:59 pm",
-      "color": "green"
-    },
-    {
-      "id": "4",
-      "title": "birthday party",
-      "date": "2025-05-20",
-      "startTime": "06:00 pm",
-      "endTime": "10:00 pm",
-      "color": "purple"
-    },
-    {
-      "id": "5",
-      "title": "webinar on ai",
-      "date": "2025-05-07",
-      "startTime": "01:00 pm",
-      "endTime": "02:30 pm",
-      "color": "orange"
-    }
+  {
+    "id": "1",
+    "title": "team meeting",
+    "date": "2025-05-10",
+    "startTime": "10:00 am",
+    "endTime": "11:00 am",
+    "color": "red"
+  },
+  {
+    "id": "2",
+    "title": "doctor appointment",
+    "date": "2025-05-20",
+    "startTime": "03:30 pm",
+    "endTime": "04:00 pm",
+    "color": "blue"
+  },
+  {
+    "id": "3",
+    "title": "project deadline",
+    "date": "2025-05-20",
+    "startTime": "12:00 am",
+    "endTime": "11:59 pm",
+    "color": "green"
+  },
+  {
+    "id": "4",
+    "title": "birthday party",
+    "date": "2025-05-20",
+    "startTime": "06:00 pm",
+    "endTime": "10:00 pm",
+    "color": "purple"
+  },
+  {
+    "id": "5",
+    "title": "webinar on ai",
+    "date": "2025-05-05",
+    "startTime": "01:00 pm",
+    "endTime": "02:30 pm",
+    "color": "orange"
+  },
+  {
+    "id": "6",
+    "title": "project kickoff",
+    "date": "2025-04-15",
+    "startTime": "09:00 am",
+    "endTime": "10:30 am",
+    "color": "green"
+  },
+  {
+    "id": "7",
+    "title": "client presentation",
+    "date": "2025-04-25",
+    "startTime": "02:00 pm",
+    "endTime": "03:00 pm",
+    "color": "blue"
+  },
+  {
+    "id": "8",
+    "title": "family dinner",
+    "date": "2025-04-30",
+    "startTime": "07:00 pm",
+    "endTime": "09:00 pm",
+    "color": "purple"
+  },
+  {
+    "id": "9",
+    "title": "summer break starts",
+    "date": "2025-06-01",
+    "startTime": "12:00 am",
+    "endTime": "11:59 pm",
+    "color": "orange"
+  },
+  {
+    "id": "10",
+    "title": "tech conference",
+    "date": "2025-06-12",
+    "startTime": "10:00 am",
+    "endTime": "04:00 pm",
+    "color": "red"
+  },
+  {
+    "id": "11",
+    "title": "team outing",
+    "date": "2025-06-20",
+    "startTime": "08:00 am",
+    "endTime": "06:00 pm",
+    "color": "green"
+  },
+  {
+    "id": "12",
+    "title": "product launch",
+    "date": "2025-06-28",
+    "startTime": "11:00 am",
+    "endTime": "01:00 pm",
+    "color": "blue"
+  }
 ]
