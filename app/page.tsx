@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import events from "./events.json"
+import initialevents from "./events.json"
 
 // Event type definition
 type Event = {
@@ -62,7 +62,7 @@ export default function CalendarPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isAddEventOpen, setIsAddEventOpen] = useState(false)
   const [isMobileView, setIsMobileView] = useState(false)
-
+  const [events, setEvents] = useState< Event[] >(() => initialevents);
   // State for new event form
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -90,7 +90,7 @@ export default function CalendarPage() {
     return () => window.removeEventListener("resize", checkIfMobile)
   }, [])
 
-  const generateCalendarData = (currentMonth: number, currentYear: number): Day[] => {
+  const generateCalendarData = (currentMonth: number, currentYear: number,events:Event[]): Day[] => {
     const today = new Date()
     const currentDate = today.getMonth() === currentMonth ? today.getDate() : -1
 
@@ -146,9 +146,21 @@ export default function CalendarPage() {
   const [calendarData, setCalendarData] = useState<Day[]>([])
 
   useEffect(() => {
-    const data = generateCalendarData(currentMonth, currentYear)
+    const data = generateCalendarData(currentMonth, currentYear,events)
     setCalendarData(data)
-  }, [currentMonth, currentYear])
+  }, [currentMonth, currentYear,events])
+
+  useEffect(() => {
+  const stored = localStorage.getItem("events");
+  if (stored) {
+    setEvents(JSON.parse(stored));
+  }
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("events", JSON.stringify(events));
+  }, [events]);
 
   const goToNextMonth = () => {
     if (currentMonth === 11) {
@@ -200,7 +212,7 @@ export default function CalendarPage() {
       endTime,
       color,
     }
-
+    setEvents([...events,event])
     // Add event to calendar
     const updatedCalendar = calendarData.map((day) => {
       if (day.fullDate.toDateString() === date.toDateString()) {
@@ -255,6 +267,12 @@ export default function CalendarPage() {
     }
   }
 
+  const handleEventDelete = (eventId: string) => {
+    let updatedevents = events.filter((event) => event.id !== eventId)
+    setEvents(updatedevents)
+    setIsDialogOpen(false)
+    
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-2 md:p-4">
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-3 md:p-6">
@@ -395,7 +413,7 @@ export default function CalendarPage() {
           </DialogHeader>
           <div className="space-y-4 mt-4 max-h-[60vh] overflow-y-auto">
             {selectedDay?.events.map((event, index) => (
-              <div key={index} className="flex items-start">
+              <div key={index} className="flex items-start ">
                 <div className={`w-2 h-2 rounded-full mt-1.5 mr-3 ${getBulletColorClass(event.color)}`}></div>
                 <div>
                   <div className="font-medium">{event.title}</div>
@@ -407,6 +425,11 @@ export default function CalendarPage() {
                         : event.startTime}
                   </div>
                 </div>
+                <Button variant="ghost" size="icon" onClick={() => handleEventDelete(event.id)} type="button" aria-label="Delete event">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
               </div>
             ))}
             {selectedDay?.events.length === 0 && (
